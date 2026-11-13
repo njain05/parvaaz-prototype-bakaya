@@ -6,6 +6,8 @@ Bakaya helps the owner of a machinery-manufacturing business keep track of money
 see what's overdue at a glance, and send polite payment reminders on WhatsApp. AI features help write those
 reminders, answer questions about the credit book, and read bills from a photo.
 
+**Project docs:** [the idea](docs/idea.md) · [feedback log](docs/feedback-log.md)
+
 ## The problem
 
 We interviewed the owner of a textile-machinery manufacturer (about 15–20 workers) that builds large,
