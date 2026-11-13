@@ -1,0 +1,20 @@
+# Private interview recordings and transcripts — never commit
+*.wav
+*.mp3
+*.m4a
+*-transcript.txt
+
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# App data (local database)
+*.db
+
+# OS
+.DS_Store
