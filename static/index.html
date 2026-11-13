@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bakaya · Credit Tracker</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">ब</span>
+      <div>
+        <h1>Bakaya</h1>
+        <p id="biz-name">Credit &amp; payment tracker</p>
+      </div>
+    </div>
+    <span id="ai-pill" class="pill">…</span>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button data-tab="dashboard" class="active">Dashboard</button>
+    <button data-tab="orders">Orders</button>
+    <button data-tab="ask">Ask AI</button>
+    <button data-tab="scan">Scan bill</button>
+  </nav>
+
+  <main>
+    <section id="tab-dashboard">
+      <div class="stats" id="stats"></div>
+      <div class="card">
+        <h2>Overdue money, by how late it is</h2>
+        <div id="ageing" class="ageing"></div>
+      </div>
+      <div class="card">
+        <div class="row-between">
+          <h2>Who owes you</h2>
+          <span class="muted small" id="today"></span>
+        </div>
+        <div class="table-wrap"><table id="cust-table"></table></div>
+      </div>
+    </section>
+
+    <section id="tab-orders" hidden>
+      <div class="row-between">
+        <h2 class="page-title">Orders</h2>
+        <button id="new-order-btn" class="btn primary">+ New order</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap"><table id="orders-table"></table></div>
+      </div>
+    </section>
+
+    <section id="tab-ask" hidden>
+      <div class="card">
+        <h2>Ask about your payments</h2>
+        <p class="muted">Ask in English, Hindi, Hinglish or Punjabi.</p>
+        <div class="chips" id="ask-chips"></div>
+        <div id="chat" class="chat"></div>
+        <form id="ask-form" class="ask-form">
+          <input id="ask-input" autocomplete="off" placeholder="e.g. Sabse zyada paisa kiska baaki hai?">
+          <button class="btn primary">Ask</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="tab-scan" hidden>
+      <div class="card">
+        <h2>Scan a bill or invoice</h2>
+        <p class="muted">Take a photo of a bill. The AI reads it and fills in a new order for you to check.</p>
+        <label class="upload">
+          <input type="file" id="scan-file" accept="image/png,image/jpeg,image/webp" capture="environment">
+          <span>Choose or take a photo</span>
+        </label>
+        <img id="scan-preview" class="scan-preview" alt="Bill preview" hidden>
+        <div><button id="scan-btn" class="btn primary" disabled>Read bill</button></div>
+        <div id="scan-result"></div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="modal">
+    <button class="close" aria-label="Close" onclick="closeModal()">×</button>
+    <div id="modal-body"></div>
+  </dialog>
+
+  <div id="toast" class="toast" hidden></div>
+  <script src="/static/app.js"></script>
+</body>
+</html>
