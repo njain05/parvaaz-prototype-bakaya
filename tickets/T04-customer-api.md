@@ -1,5 +1,5 @@
 # T04 — Customer API: details, history, contacts, and input validation
-**Status:** TODO
+**Status:** DONE
 **Prereqs:** T02 · **Branch:** t04-customer-api
 
 ## Goal
@@ -38,6 +38,14 @@ Data track: T02 → T04 → T07 (reminder sheet) → T09 / T10. PLAN.md §API, �
 - `DELETE /api/contacts/<id>`: `db.delete_contact`; 404 `"Already removed."` when nothing was deleted.
 - `/api/book` stays as it is: T06 still uses it for the Customers list.
 
+Done as built:
+- The customer row is `id, name, contact_person, phone, city` plus the PLAN.md fields; the ledger's `orders` count
+  is left out because `sales` carries the orders.
+- `POST …/contacts` for an unknown customer returns 404 `"Customer not found."`. `language` is stored for
+  reminders only, and `note` is trimmed.
+- `number()` also rejects `true`/`false`. A bad `advance_received` gets the existing advance message
+  (`"Advance received can't be more than the total."`), since `create_order` has no separate one.
+
 ## Tests
 
 `tests/test_customer_api.py` with `app.app.test_client()` and the `seeded` fixture:
@@ -60,7 +68,7 @@ curl -s -X POST localhost:5055/api/orders/1/payments -H 'Content-Type: applicati
 
 ## Done when
 
-- [ ] The three routes exist with the PLAN.md shapes and the error messages above
-- [ ] Bad numbers in `create_order` and `record_payment` return 400, not 500
-- [ ] `tests/test_customer_api.py` passes, and so does the whole suite
-- [ ] Committed: `T04: customer API, contact log routes, input validation`
+- [x] The three routes exist with the PLAN.md shapes and the error messages above
+- [x] Bad numbers in `create_order` and `record_payment` return 400, not 500
+- [x] `tests/test_customer_api.py` passes, and so does the whole suite
+- [x] Committed: `T04: customer API, contact log routes, input validation`
