@@ -61,7 +61,16 @@ You can also set `BUSINESS_NAME` in `.env`. It's used to sign the reminders.
 ```
 
 All demo customers, phone numbers and amounts are made up. Dates are relative to today, so the demo always shows
-a realistic mix of overdue, due-soon and paid orders.
+a realistic mix of overdue, due-soon and paid orders, plus a few reminders and promises to pay.
+
+### Run the tests
+
+```bash
+.venv/bin/pip install -r requirements-dev.txt
+.venv/bin/python -m pytest -q
+```
+
+Each test uses its own temporary database and never calls the Claude API.
 
 ## Demo script (about 3 minutes)
 
@@ -77,10 +86,12 @@ a realistic mix of overdue, due-soon and paid orders.
 
 - `app.py`: Flask web server and API routes
 - `ledger.py`: works out balances, overdue amounts, ageing and payment habits. Payments are applied to instalments in due-date order
+- `contact_log.py`: reminders and promises to pay: how often a customer was reminded since they last paid, and whether their promise is open, kept or broken
 - `ai.py`: AI features using the Claude API (`claude-opus-5-5`). Bill reading uses structured outputs, so the result is always valid JSON
 - `offline.py`: template reminders and rule-based answers for offline mode
-- `db.py`: SQLite storage (`bakaya.db`, created on first run)
+- `db.py`: SQLite storage (`bakaya.db`, created on first run), including the contact log
 - `seed.py`: fictional demo data
+- `tests/`: pytest tests for the money maths and the contact log
 - `static/`: the web page (plain HTML, CSS and JavaScript, with no build step)
 
 ## Ideas for later
