@@ -1,5 +1,5 @@
 # T01 — Clickable mockup of Today, customer page and reminder sheet
-**Status:** TODO
+**Status:** DONE
 **Prereqs:** — · **Branch:** t01-mockup
 
 ## Goal
@@ -37,6 +37,19 @@ Start of the interface track: T01 → T06 → T07 / T11 → … PLAN.md §Screen
   Devanagari and Gurmukhi from Google Fonts. Tap targets at least 44px.
 - Words: use the PLAN.md §Words column "New" everywhere.
 
+- Done as built: the artifact copy is made by `python3 mockup/build_artifact.py mockup/index.html mockup/style.css
+  <out.html>` (inlines the CSS, drops the document skeleton). Published at
+  https://claude.ai/artifact/Nbz3hV2yqHfYqBacwkEfRe (private).
+- Done as built: routes are `#today`, `#customers`, `#ask`, `#customer-<id>` (artifact links only pass a plain
+  `#name`, so not the `#/customers/<id>` form PLAN.md uses for the real app). Every customer has a page, built from
+  the inlined data, and Customers is a simple A–Z list with search rather than an empty placeholder.
+- Done as built: the mockup's contact log is made up (Shree Ganesh broke a ₹5 lakh promise due 12 Nov, Tirupur was
+  reminded 9 Nov, Kaur was reminded 20 Oct). Sending a reminder hides that customer from Today (rule 3) and adds it
+  to their History; Undo puts both back. Call, WhatsApp, Record payment, Note a promise, Add sale and Ask answers
+  show a "not in this mockup yet" toast.
+- Done as built: Ankur approved it on 15 Nov 2026 after checking it in dark mode only; light mode was not looked at
+  by a human. T06 should check light mode when it copies the stylesheet.
+
 ## Tests
 
 manual: see Check
@@ -48,9 +61,9 @@ a row → the customer page → Send reminder → switch language → Send on Wh
 
 ## Done when
 
-- [ ] `mockup/index.html` and `mockup/style.css` exist and show the three screens with the demo data
-- [ ] It works at 390px and desktop width, in light and dark mode, with no horizontal scroll
-- [ ] Published as a private artifact; the link is given to Ankur
-- [ ] Ankur has approved the look and layout in chat. Until then, set `**Status:** BLOCKED (needs human: mockup
+- [x] `mockup/index.html` and `mockup/style.css` exist and show the three screens with the demo data
+- [x] It works at 390px and desktop width, in light and dark mode, with no horizontal scroll
+- [x] Published as a private artifact; the link is given to Ankur
+- [x] Ankur has approved the look and layout in chat. Until then, set `**Status:** BLOCKED (needs human: mockup
       approval)`. Changes he asks for are made here, and any that change a decision are written into PLAN.md
-- [ ] Committed: `T01: mockup of the new design`
+- [x] Committed: `T01: mockup of the new design`

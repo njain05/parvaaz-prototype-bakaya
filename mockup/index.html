@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bakaya Mockup</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Gurmukhi:wght@400;600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <span class="wordmark">Bakaya</span>
+    <nav aria-label="Main">
+      <a href="#today" data-tab="today">Today</a>
+      <a href="#customers" data-tab="customers">Customers</a>
+      <a href="#ask" data-tab="ask">Ask</a>
+    </nav>
+    <button class="btn btn-primary" type="button" data-add-sale>+ Add sale</button>
+  </div>
+</header>
+
+<main id="view"></main>
+
+<nav class="bottombar" aria-label="Main">
+  <div class="bottombar-inner">
+    <a href="#today" data-tab="today">Today</a>
+    <a href="#customers" data-tab="customers">Customers</a>
+    <a href="#ask" data-tab="ask">Ask</a>
+    <button class="btn btn-primary" type="button" data-add-sale>+ Add sale</button>
+  </div>
+</nav>
+
+<dialog id="sheet" class="sheet" aria-labelledby="sheet-title"></dialog>
+
+<div id="toast" class="toast" role="status" hidden>
+  <span id="toast-text"></span>
+  <button id="toast-action" class="btn-link" type="button" hidden></button>
+</div>
+
+<script>
+/* Fixed copy of the demo data (PLAN.md Assumed 8): GET /api/book on 15 Nov 2026, trimmed.
+   The contacts are made up for the mockup, so Today can show a broken promise and a reminded row. */
+const BUSINESS = "Demo Machinery Works";
+const TODAY = "2026-11-15";
+const BOOK = {"totals":{"outstanding":5574000.0,"overdue":2422000.0},"customers":[{"id":9,"name":"Shree Ganesh Processors","contact_person":"Deepak Verma","city":"Ludhiana","phone":"98XXX-XX019","outstanding":1246000.0,"overdue":1068000.0,"days_overdue":20,"habit":"sometimes_late","avg_days_late":22,"remind_order_id":12},
+  {"id":1,"name":"Sharma Knit Processors","contact_person":"Rajesh Sharma","city":"Ludhiana","phone":"98XXX-XX011","outstanding":695000.0,"overdue":695000.0,"days_overdue":60,"habit":"often_late","avg_days_late":31,"remind_order_id":1},
+  {"id":6,"name":"Tirupur Knit Finishers","contact_person":"S. Kumar","city":"Tirupur","phone":"98XXX-XX016","outstanding":295000.0,"overdue":295000.0,"days_overdue":120,"habit":"often_late","avg_days_late":32,"remind_order_id":7},
+  {"id":7,"name":"Arora Fabrics","contact_person":"Manoj Arora","city":"Ludhiana","phone":"98XXX-XX017","outstanding":278000.0,"overdue":224000.0,"days_overdue":25,"habit":"sometimes_late","avg_days_late":12,"remind_order_id":9},
+  {"id":2,"name":"Gupta Woollen Mills","contact_person":"Sanjay Gupta","city":"Amritsar","phone":"98XXX-XX012","outstanding":98000.0,"overdue":98000.0,"days_overdue":15,"habit":"on_time","avg_days_late":7,"remind_order_id":2},
+  {"id":4,"name":"Kaur Hosiery Works","contact_person":"Harpreet Kaur","city":"Ludhiana","phone":"98XXX-XX014","outstanding":42000.0,"overdue":42000.0,"days_overdue":70,"habit":"often_late","avg_days_late":33,"remind_order_id":5},
+  {"id":3,"name":"Bansal Dyeing House","contact_person":"Vikas Bansal","city":"Panipat","phone":"98XXX-XX013","outstanding":1680000.0,"overdue":0.0,"days_overdue":0,"habit":"on_time","avg_days_late":0,"remind_order_id":4},
+  {"id":5,"name":"Malhotra Textiles","contact_person":"Amit Malhotra","city":"Surat","phone":"98XXX-XX015","outstanding":1120000.0,"overdue":0.0,"days_overdue":0,"habit":"on_time","avg_days_late":2,"remind_order_id":6},
+  {"id":8,"name":"Bhilwara Suitings","contact_person":"Ramesh Jain","city":"Bhilwara","phone":"98XXX-XX018","outstanding":120000.0,"overdue":0.0,"days_overdue":0,"habit":"on_time","avg_days_late":1,"remind_order_id":11}],"orders":[{"id":11,"customer_id":8,"machine":"Raising rollers (spares)","total":120000.0,"order_date":"2026-11-05","paid":0,"balance":120000.0,"overdue":0.0,"days_overdue":0,"next_due":{"amount":120000.0,"due_date":"2026-12-05","label":"Full payment"},"milestones":[{"label":"Full payment","amount":120000.0,"due_date":"2026-12-05","status":"upcoming","unpaid":120000.0,"partly_paid":false,"paid_on":null}],"payments":[]},
+  {"id":6,"customer_id":5,"machine":"Raising Machine, 36 roller","total":1600000.0,"order_date":"2026-10-26","paid":480000.0,"balance":1120000.0,"overdue":0.0,"days_overdue":0,"next_due":{"amount":960000.0,"due_date":"2026-11-20","label":"Before dispatch"},"milestones":[{"label":"Advance","amount":480000.0,"due_date":"2026-10-26","status":"paid","unpaid":0.0,"partly_paid":false,"paid_on":"2026-10-28"},{"label":"Before dispatch","amount":960000.0,"due_date":"2026-11-20","status":"upcoming","unpaid":960000.0,"partly_paid":false,"paid_on":null},{"label":"After installation","amount":160000.0,"due_date":"2026-12-20","status":"upcoming","unpaid":160000.0,"partly_paid":false,"paid_on":null}],"payments":[{"id":12,"date":"2026-10-28","amount":480000.0,"mode":"RTGS"}]},
+  {"id":8,"customer_id":6,"machine":"Fillet wire set (spares)","total":85000.0,"order_date":"2026-10-11","paid":0,"balance":85000.0,"overdue":85000.0,"days_overdue":5,"next_due":null,"milestones":[{"label":"Full payment","amount":85000.0,"due_date":"2026-11-10","status":"overdue","unpaid":85000.0,"partly_paid":false,"paid_on":null}],"payments":[]},
+  {"id":4,"customer_id":3,"machine":"Stenter, 8 chamber","total":2400000.0,"order_date":"2026-10-06","paid":720000.0,"balance":1680000.0,"overdue":0.0,"days_overdue":0,"next_due":{"amount":1440000.0,"due_date":"2026-11-25","label":"Before dispatch"},"milestones":[{"label":"Advance","amount":720000.0,"due_date":"2026-10-06","status":"paid","unpaid":0.0,"partly_paid":false,"paid_on":"2026-10-06"},{"label":"Before dispatch","amount":1440000.0,"due_date":"2026-11-25","status":"upcoming","unpaid":1440000.0,"partly_paid":false,"paid_on":null},{"label":"After installation","amount":240000.0,"due_date":"2026-12-25","status":"upcoming","unpaid":240000.0,"partly_paid":false,"paid_on":null}],"payments":[{"id":8,"date":"2026-10-06","amount":720000.0,"mode":"RTGS"}]},
+  {"id":9,"customer_id":7,"machine":"Brushing Machine","total":540000.0,"order_date":"2026-09-16","paid":262000.0,"balance":278000.0,"overdue":224000.0,"days_overdue":25,"next_due":{"amount":54000.0,"due_date":"2026-11-20","label":"After installation"},"milestones":[{"label":"Advance","amount":162000.0,"due_date":"2026-09-16","status":"paid","unpaid":0.0,"partly_paid":false,"paid_on":"2026-09-16"},{"label":"Before dispatch","amount":324000.0,"due_date":"2026-10-21","status":"overdue","unpaid":224000.0,"partly_paid":true,"paid_on":null},{"label":"After installation","amount":54000.0,"due_date":"2026-11-20","status":"upcoming","unpaid":54000.0,"partly_paid":false,"paid_on":null}],"payments":[{"id":15,"date":"2026-09-16","amount":162000.0,"mode":"Cash"},
+  {"id":16,"date":"2026-11-05","amount":100000.0,"mode":"Cheque"}]},
+  {"id":12,"customer_id":9,"machine":"Raising Machine, 24 roller","total":1780000.0,"order_date":"2026-09-01","paid":534000.0,"balance":1246000.0,"overdue":1068000.0,"days_overdue":20,"next_due":{"amount":178000.0,"due_date":"2026-11-25","label":"After installation"},"milestones":[{"label":"Advance","amount":534000.0,"due_date":"2026-09-01","status":"paid","unpaid":0.0,"partly_paid":false,"paid_on":"2026-09-26"},{"label":"Before dispatch","amount":1068000.0,"due_date":"2026-10-26","status":"overdue","unpaid":1068000.0,"partly_paid":false,"paid_on":null},{"label":"After installation","amount":178000.0,"due_date":"2026-11-25","status":"upcoming","unpaid":178000.0,"partly_paid":false,"paid_on":null}],"payments":[{"id":20,"date":"2026-09-06","amount":300000.0,"mode":"Cheque"},
+  {"id":21,"date":"2026-09-26","amount":234000.0,"mode":"Cheque"}]},
+  {"id":2,"customer_id":2,"machine":"Shearing Machine","total":980000.0,"order_date":"2026-08-17","paid":882000.0,"balance":98000.0,"overdue":98000.0,"days_overdue":15,"next_due":null,"milestones":[{"label":"Advance","amount":294000.0,"due_date":"2026-08-17","status":"paid","unpaid":0.0,"partly_paid":false,"paid_on":"2026-08-17"},{"label":"Before dispatch","amount":588000.0,"due_date":"2026-10-01","status":"paid","unpaid":0.0,"partly_paid":false,"paid_on":"2026-10-06"},{"label":"After installation","amount":98000.0,"due_date":"2026-10-31","status":"overdue","unpaid":98000.0,"partly_paid":false,"paid_on":null}],"payments":[{"id":3,"date":"2026-08-17","amount":294000.0,"mode":"NEFT"},
+  {"id":4,"date":"2026-10-06","amount":588000.0,"mode":"NEFT"}]},
+  {"id":10,"customer_id":8,"machine":"Shearing Machine","total":1050000.0,"order_date":"2026-08-07","paid":1050000.0,"balance":0.0,"overdue":0.0,"days_overdue":0,"next_due":null,"milestones":[{"label":"Advance","amount":315000.0,"due_date":"2026-08-07","status":"paid","unpaid":0.0,"partly_paid":false,"paid_on":"2026-08-07"},{"label":"Before dispatch","amount":630000.0,"due_date":"2026-09-16","status":"paid","unpaid":0.0,"partly_paid":false,"paid_on":"2026-09-15"},{"label":"After installation","amount":105000.0,"due_date":"2026-10-16","status":"paid","unpaid":0.0,"partly_paid":false,"paid_on":"2026-10-18"}],"payments":[{"id":17,"date":"2026-08-07","amount":315000.0,"mode":"NEFT"},
+  {"id":18,"date":"2026-09-15","amount":630000.0,"mode":"NEFT"},
+  {"id":19,"date":"2026-10-18","amount":105000.0,"mode":"NEFT"}]},
+  {"id":1,"customer_id":1,"machine":"Raising Machine, 24 roller","total":1850000.0,"order_date":"2026-07-18","paid":1155000.0,"balance":695000.0,"overdue":695000.0,"days_overdue":60,"next_due":null,"milestones":[{"label":"Advance","amount":555000.0,"due_date":"2026-07-18","status":"paid","unpaid":0.0,"partly_paid":false,"paid_on":"2026-07-20"},{"label":"Before dispatch","amount":1110000.0,"due_date":"2026-09-16","status":"overdue","unpaid":510000.0,"partly_paid":true,"paid_on":null},{"label":"After installation","amount":185000.0,"due_date":"2026-10-16","status":"overdue","unpaid":185000.0,"partly_paid":false,"paid_on":null}],"payments":[{"id":1,"date":"2026-07-20","amount":555000.0,"mode":"NEFT"},
+  {"id":2,"date":"2026-09-21","amount":600000.0,"mode":"Cheque"}]},
+  {"id":5,"customer_id":4,"machine":"Tumble Dryer","total":720000.0,"order_date":"2026-06-18","paid":678000.0,"balance":42000.0,"overdue":42000.0,"days_overdue":70,"next_due":null,"milestones":[{"label":"Advance","amount":216000.0,"due_date":"2026-06-18","status":"paid","unpaid":0.0,"partly_paid":false,"paid_on":"2026-06-18"},{"label":"Before dispatch","amount":432000.0,"due_date":"2026-08-07","status":"paid","unpaid":0.0,"partly_paid":false,"paid_on":"2026-09-06"},{"label":"After installation","amount":72000.0,"due_date":"2026-09-06","status":"overdue","unpaid":42000.0,"partly_paid":true,"paid_on":null}],"payments":[{"id":9,"date":"2026-06-18","amount":216000.0,"mode":"Cheque"},
+  {"id":10,"date":"2026-09-06","amount":432000.0,"mode":"Cheque"},
+  {"id":11,"date":"2026-10-26","amount":30000.0,"mode":"Cash"}]},
+  {"id":3,"customer_id":3,"machine":"Brushing Machine","total":650000.0,"order_date":"2026-04-29","paid":650000.0,"balance":0.0,"overdue":0.0,"days_overdue":0,"next_due":null,"milestones":[{"label":"Advance","amount":195000.0,"due_date":"2026-04-29","status":"paid","unpaid":0.0,"partly_paid":false,"paid_on":"2026-04-29"},{"label":"Before dispatch","amount":390000.0,"due_date":"2026-06-18","status":"paid","unpaid":0.0,"partly_paid":false,"paid_on":"2026-06-17"},{"label":"After installation","amount":65000.0,"due_date":"2026-07-18","status":"paid","unpaid":0.0,"partly_paid":false,"paid_on":"2026-07-20"}],"payments":[{"id":5,"date":"2026-04-29","amount":195000.0,"mode":"NEFT"},
+  {"id":6,"date":"2026-06-17","amount":390000.0,"mode":"NEFT"},
+  {"id":7,"date":"2026-07-20","amount":65000.0,"mode":"NEFT"}]},
+  {"id":7,"customer_id":6,"machine":"Compactor","total":2100000.0,"order_date":"2026-04-19","paid":1890000.0,"balance":210000.0,"overdue":210000.0,"days_overdue":120,"next_due":null,"milestones":[{"label":"Advance","amount":630000.0,"due_date":"2026-04-19","status":"paid","unpaid":0.0,"partly_paid":false,"paid_on":"2026-04-19"},{"label":"Before dispatch","amount":1260000.0,"due_date":"2026-06-18","status":"paid","unpaid":0.0,"partly_paid":false,"paid_on":"2026-06-20"},{"label":"After installation","amount":210000.0,"due_date":"2026-07-18","status":"overdue","unpaid":210000.0,"partly_paid":false,"paid_on":null}],"payments":[{"id":13,"date":"2026-04-19","amount":630000.0,"mode":"RTGS"},
+  {"id":14,"date":"2026-06-20","amount":1260000.0,"mode":"RTGS"}]}]};
+const TEMPLATES = {
+ "english": {
+  "upcoming": "Namaste {person} ji, a friendly reminder from {biz}: {amt} for the {machine} (order #{id}) is due on {due}. Thank you for your continued support!",
+  "gentle": "Namaste {person} ji, a gentle reminder from {biz}. {amt} for the {machine} (order #{id}) was due on {due}. Kindly arrange the payment at your convenience, or let us know the expected date. Thank you!",
+  "firm": "Namaste {person} ji, {amt} for the {machine} (order #{id}) has been pending since {due} ({days} days). Please arrange the payment this week, or share a confirmed date. Regards, {biz}",
+  "serious": "Namaste {person} ji, {amt} for the {machine} (order #{id}) is now overdue by {days} days (due {due}). We request you to clear it at the earliest, as it is affecting our production schedule. Please call us today to confirm the payment date. Regards, {biz}"
+ },
+ "hinglish": {
+  "upcoming": "Namaste {person} ji, {biz} ki taraf se reminder: {machine} (order #{id}) ka {amt} payment {due} ko due hai. Aapke saath ke liye dhanyavaad!",
+  "gentle": "Namaste {person} ji, {biz} ki taraf se ek chhota sa reminder. {machine} (order #{id}) ka {amt} payment {due} ko due tha. Jab convenient ho payment kar dijiye, ya expected date bata dijiye. Dhanyavaad!",
+  "firm": "Namaste {person} ji, {machine} (order #{id}) ka {amt} payment {due} se pending hai ({days} din). Kripya is hafte payment arrange kar dijiye, ya confirm date bata dijiye. – {biz}",
+  "serious": "Namaste {person} ji, {machine} (order #{id}) ka {amt} payment {days} din se overdue hai (due date {due}). Kripya jaldi se jaldi clear kar dijiye, isse humara production schedule affect ho raha hai. Aaj call karke payment date confirm kar dijiye. – {biz}"
+ },
+ "hindi": {
+  "upcoming": "नमस्ते {person} जी, {biz} की ओर से याद दिला रहे हैं: {machine} (ऑर्डर #{id}) का {amt} का भुगतान {due} को देय है। आपके सहयोग के लिए धन्यवाद!",
+  "gentle": "नमस्ते {person} जी, {biz} की ओर से एक छोटा सा रिमाइंडर। {machine} (ऑर्डर #{id}) का {amt} का भुगतान {due} को देय था। सुविधा अनुसार भुगतान कर दीजिए, या संभावित तारीख बता दीजिए। धन्यवाद!",
+  "firm": "नमस्ते {person} जी, {machine} (ऑर्डर #{id}) का {amt} का भुगतान {due} से बकाया है ({days} दिन)। कृपया इस सप्ताह भुगतान की व्यवस्था करें, या पक्की तारीख बता दें। – {biz}",
+  "serious": "नमस्ते {person} जी, {machine} (ऑर्डर #{id}) का {amt} का भुगतान {days} दिनों से बकाया है (देय तिथि {due})। कृपया जल्द से जल्द भुगतान करें, इससे हमारा उत्पादन कार्यक्रम प्रभावित हो रहा है। आज ही कॉल करके भुगतान की तारीख पक्की करें। – {biz}"
+ },
+ "punjabi": {
+  "upcoming": "ਸਤ ਸ੍ਰੀ ਅਕਾਲ {person} ਜੀ, {biz} ਵੱਲੋਂ ਯਾਦ ਕਰਵਾ ਰਹੇ ਹਾਂ: {machine} (ਆਰਡਰ #{id}) ਦਾ {amt} ਦਾ ਭੁਗਤਾਨ {due} ਨੂੰ ਹੋਣਾ ਹੈ। ਤੁਹਾਡੇ ਸਹਿਯੋਗ ਲਈ ਧੰਨਵਾਦ!",
+  "gentle": "ਸਤ ਸ੍ਰੀ ਅਕਾਲ {person} ਜੀ, {biz} ਵੱਲੋਂ ਇੱਕ ਛੋਟੀ ਜਿਹੀ ਯਾਦ-ਦਹਾਨੀ। {machine} (ਆਰਡਰ #{id}) ਦਾ {amt} ਦਾ ਭੁਗਤਾਨ {due} ਤੱਕ ਹੋਣਾ ਸੀ। ਕਿਰਪਾ ਕਰਕੇ ਸਹੂਲਤ ਅਨੁਸਾਰ ਭੁਗਤਾਨ ਕਰ ਦਿਓ, ਜਾਂ ਸੰਭਾਵਿਤ ਤਾਰੀਖ ਦੱਸ ਦਿਓ। ਧੰਨਵਾਦ!",
+  "firm": "ਸਤ ਸ੍ਰੀ ਅਕਾਲ {person} ਜੀ, {machine} (ਆਰਡਰ #{id}) ਦਾ {amt} ਦਾ ਭੁਗਤਾਨ {due} ਤੋਂ ਬਕਾਇਆ ਹੈ ({days} ਦਿਨ)। ਕਿਰਪਾ ਕਰਕੇ ਇਸ ਹਫ਼ਤੇ ਭੁਗਤਾਨ ਕਰ ਦਿਓ, ਜਾਂ ਪੱਕੀ ਤਾਰੀਖ ਦੱਸ ਦਿਓ। – {biz}",
+  "serious": "ਸਤ ਸ੍ਰੀ ਅਕਾਲ {person} ਜੀ, {machine} (ਆਰਡਰ #{id}) ਦਾ {amt} ਦਾ ਭੁਗਤਾਨ {days} ਦਿਨਾਂ ਤੋਂ ਬਕਾਇਆ ਹੈ (ਤਾਰੀਖ {due})। ਕਿਰਪਾ ਕਰਕੇ ਜਲਦੀ ਤੋਂ ਜਲਦੀ ਭੁਗਤਾਨ ਕਰੋ, ਇਸ ਨਾਲ ਸਾਡਾ ਉਤਪਾਦਨ ਪ੍ਰਭਾਵਿਤ ਹੋ ਰਿਹਾ ਹੈ। ਅੱਜ ਹੀ ਫ਼ੋਨ ਕਰਕੇ ਭੁਗਤਾਨ ਦੀ ਤਾਰੀਖ ਪੱਕੀ ਕਰੋ। – {biz}"
+ }
+};
+const contacts = [
+  {id: 1, customer_id: 9, date: "2026-10-30", kind: "reminder", language: "hinglish"},
+  {id: 2, customer_id: 9, date: "2026-11-05", kind: "promise", promised_amount: 500000, promised_date: "2026-11-12",
+   note: "Deepak ji said the cheque will be ready by Thursday."},
+  {id: 3, customer_id: 6, date: "2026-11-09", kind: "reminder", language: "english"},
+  {id: 4, customer_id: 4, date: "2026-10-20", kind: "reminder", language: "punjabi"},
+];
+
+/* Today rows, written by hand as PLAN.md §Today rules would produce them. */
+const TODAY_ROWS = {
+  late: [
+    {customer_id: 9, amount: 1068000, flag: "broken_promise", why: "Promised ₹5 lakh by 12 Nov. Not received."},
+    {customer_id: 1, amount: 695000, why: "60 days late. Usually pays about a month late. Not reminded yet."},
+    {customer_id: 6, amount: 295000, flag: "reminded", why: "120 days late. Reminded 6 days ago, no payment yet."},
+    {customer_id: 7, amount: 224000, why: "25 days late. Usually pays about 12 days late. Paid ₹1 lakh on 5 Nov."},
+    {customer_id: 2, amount: 98000, why: "15 days late. Usually pays on time. Not reminded yet."},
+    {customer_id: 4, amount: 42000, why: "70 days late. Reminded 20 Oct, then paid ₹30,000 on 26 Oct."},
+  ],
+  coming_up: [
+    {customer_id: 5, amount: 960000, due_date: "2026-11-20", why: "Due 20 Nov, in 5 days. Usually pays on time."},
+  ],
+};
+
+/* ---------- helpers (become static/js/lib.js) ---------- */
+const $ = (sel, el = document) => el.querySelector(sel);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+const inr = n => "₹" + Math.round(n).toLocaleString("en-IN");
+function lakh(n) {
+  if (Math.abs(n) < 100000) return inr(n);
+  return "₹" + (n / 100000).toFixed(2).replace(/\.?0+$/, "") + " lakh";
+}
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+function fmtDate(iso, withYear = false) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return `${d} ${MONTHS[m - 1]}` + (withYear || y !== Number(TODAY.slice(0, 4)) ? ` ${y}` : "");
+}
+const daysBetween = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
+const customer = id => BOOK.customers.find(c => c.id === id);
+const ordersOf = id => BOOK.orders.filter(o => o.customer_id === id).sort((a, b) => b.order_date.localeCompare(a.order_date));
+
+let toastTimer;
+function toast(text, {action} = {}) {
+  const el = $("#toast"), btn = $("#toast-action");
+  $("#toast-text").textContent = text;
+  btn.hidden = !action;
+  if (action) {
+    btn.textContent = action.label;
+    btn.onclick = () => { el.hidden = true; action.onClick(); };
+  }
+  el.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.hidden = true; }, 6000);
+}
+const notInMockup = what => toast(`${what} is not in this mockup yet.`);
+
+const sheet = $("#sheet");
+function openSheet(html) {
+  sheet.innerHTML = html;
+  if (!sheet.open) sheet.showModal();
+}
+function closeSheet() { if (sheet.open) sheet.close(); }
+sheet.addEventListener("click", e => { if (e.target === sheet) closeSheet(); });
+
+/* ---------- contact log (mirrors contact_log.py) ---------- */
+function recentlyReminded(customerId) {
+  return contacts.some(c => c.customer_id === customerId && c.kind === "reminder" && daysBetween(c.date, TODAY) < 5);
+}
+
+/* ---------- screen: today ---------- */
+function rowHtml(r, group) {
+  const c = customer(r.customer_id);
+  const late = group === "late";
+  return `
+    <li class="row" data-customer="${c.id}" tabindex="0">
+      <div class="row-name">${esc(c.name)}</div>
+      <div class="row-right">
+        <div class="amount ${late ? "late" : ""}">${lakh(r.amount)}<span class="amount-label">${late ? "late" : "due " + fmtDate(r.due_date)}</span></div>
+      </div>
+      <div class="row-sub">${esc(c.city)}</div>
+      <p class="row-why">${esc(r.why)}</p>
+      <div class="row-actions"><button class="btn" type="button" data-remind="${c.id}">Send reminder</button></div>
+    </li>`;
+}
+
+function renderToday(el) {
+  const t = BOOK.totals;
+  const late = TODAY_ROWS.late.filter(r => !recentlyReminded(r.customer_id));
+  const soon = TODAY_ROWS.coming_up.filter(r => !recentlyReminded(r.customer_id));
+  const group = (title, rows, key, empty) => `
+    <div class="section-head"><h2>${title}</h2><span class="count">${rows.length} ${rows.length === 1 ? "customer" : "customers"}</span></div>
+    ${rows.length ? `<ul class="rows">${rows.map(r => rowHtml(r, key)).join("")}</ul>` : `<p class="today-empty">${empty}</p>`}`;
+  el.innerHTML = `
+    <div class="page-head">
+      <span class="eyebrow">Sunday, 15 November</span>
+      <h1 class="page-title">Today</h1>
+      <p class="totals"><strong>${lakh(t.outstanding)}</strong> owed to you · <strong class="late">${lakh(t.overdue)}</strong> late</p>
+    </div>
+    ${group("Late", late, "late", "Nobody is late. Well done.")}
+    ${group("Coming up", soon, "coming_up", "Nothing due in the next 7 days.")}`;
+}
+
+/* ---------- screen: customers ---------- */
+function renderCustomers(el) {
+  const list = [...BOOK.customers].sort((a, b) => a.name.localeCompare(b.name));
+  el.innerHTML = `
+    <div class="page-head"><h1 class="page-title">Customers</h1></div>
+    <div class="field customers-search">
+      <label for="cust-search" class="visually-hidden">Search customers</label>
+      <input id="cust-search" class="input" type="search" placeholder="Search by name or city" autocomplete="off">
+    </div>
+    <ul class="rows customers" id="cust-list"></ul>`;
+  const draw = q => {
+    q = q.trim().toLowerCase();
+    $("#cust-list", el).innerHTML = list
+      .filter(c => !q || (c.name + " " + c.city).toLowerCase().includes(q))
+      .map(c => `
+        <li class="row" data-customer="${c.id}" tabindex="0">
+          <div><div class="row-name">${esc(c.name)}</div><div class="row-sub">${esc(c.city)}</div></div>
+          <div class="row-right"><div class="amount ${c.overdue > 0.5 ? "late" : ""}">${c.outstanding > 0.5 ? lakh(c.outstanding) : "Paid up"}
+            <span class="amount-label">${c.overdue > 0.5 ? lakh(c.overdue) + " late" : c.outstanding > 0.5 ? "owed" : ""}</span></div></div>
+        </li>`).join("") || `<p class="today-empty">No customer matches that.</p>`;
+  };
+  $("#cust-search", el).addEventListener("input", e => draw(e.target.value));
+  draw("");
+}
+
+/* ---------- screen: customer ---------- */
+function habitWords(c) {
+  if (c.avg_days_late == null) return "New customer, no payment history yet.";
+  if (c.avg_days_late <= 7) return "Usually pays on time.";
+  if (c.avg_days_late >= 25 && c.avg_days_late <= 35) return "Usually pays about a month late.";
+  return `Usually pays about ${c.avg_days_late} days late.`;
+}
+
+function saleHtml(o) {
+  const items = o.milestones.map(m => {
+    if (m.status === "paid") return `
+      <li class="is-paid"><span class="inst-mark" aria-label="Paid">✓</span><span class="inst-label">${esc(m.label)}</span>
+        <span class="inst-amt">${inr(m.amount)}</span><span class="inst-note">Due ${fmtDate(m.due_date)} · paid ${fmtDate(m.paid_on)}</span></li>`;
+    const part = m.partly_paid ? ` · ${inr(m.amount - m.unpaid)} of ${inr(m.amount)} paid` : "";
+    if (m.status === "overdue") return `
+      <li class="is-late"><span class="inst-mark" aria-hidden="true">!</span><span class="inst-label">${esc(m.label)}</span>
+        <span class="inst-amt">${inr(m.unpaid)}</span><span class="inst-note">Due ${fmtDate(m.due_date)} · ${daysBetween(m.due_date, TODAY)} days late${part}</span></li>`;
+    return `
+      <li class="is-upcoming"><span class="inst-mark" aria-hidden="true">·</span><span class="inst-label">${esc(m.label)}</span>
+        <span class="inst-amt">${inr(m.unpaid)}</span><span class="inst-note">Due ${fmtDate(m.due_date)}${part}${daysBetween(TODAY, m.due_date) <= 7 ? `, in ${daysBetween(TODAY, m.due_date)} days` : ""}</span></li>`;
+  }).join("");
+  const state = o.balance <= 0.5 ? "Paid in full" : `${inr(o.paid)} paid · ${inr(o.balance)} to come`;
+  return `
+    <div class="sale">
+      <div class="sale-head"><span class="sale-name">${esc(o.machine)}</span><span class="num">${inr(o.total)}</span></div>
+      <div class="sale-meta">Sold ${fmtDate(o.order_date, true)} · ${state}</div>
+      <ul class="inst">${items}</ul>
+    </div>`;
+}
+
+const LANG_NAMES = {hinglish: "Hinglish", hindi: "Hindi", punjabi: "Punjabi", english: "English"};
+function historyOf(c) {
+  const machineOf = id => BOOK.orders.find(o => o.id === id)?.machine ?? "";
+  const pays = ordersOf(c.id).flatMap(o => o.payments.map(p => ({date: p.date, sort: p.id, kind: "payment", ...p, machine: o.machine})));
+  const cons = contacts.filter(x => x.customer_id === c.id).map(x => ({...x, sort: 1000 + x.id, machine: machineOf(x.order_id)}));
+  return [...pays, ...cons].sort((a, b) => b.date.localeCompare(a.date) || b.sort - a.sort).map(h => {
+    let what, detail;
+    if (h.kind === "payment") { what = `Paid ${inr(h.amount)}`; detail = [h.mode, h.machine].filter(Boolean).join(" · "); }
+    else if (h.kind === "reminder") { what = "Reminder sent on WhatsApp"; detail = LANG_NAMES[h.language] || ""; }
+    else {
+      const broken = h.promised_date < TODAY && !pays.some(p => p.date > h.date);
+      what = `Promised ${lakh(h.promised_amount)} by ${fmtDate(h.promised_date)}`;
+      detail = [broken ? "Not received" : "", h.note].filter(Boolean).join(" · ");
+      if (broken) return `<li><time datetime="${h.date}">${fmtDate(h.date)}</time><div><div class="what late">${esc(what)}</div><div class="detail">${esc(detail)}</div></div></li>`;
+    }
+    return `<li><time datetime="${h.date}">${fmtDate(h.date)}</time><div><div class="what">${esc(what)}</div>${detail ? `<div class="detail">${esc(detail)}</div>` : ""}</div></li>`;
+  }).join("");
+}
+
+function renderCustomer(el, id) {
+  const c = customer(id);
+  if (!c) { location.hash = "#customers"; return; }
+  const owes = c.outstanding > 0.5
+    ? `Owes ${lakh(c.outstanding)}${c.overdue > 0.5 ? `<span class="sep">·</span><span class="late">${lakh(c.overdue)} late (${c.days_overdue} days)</span>` : ""}`
+    : "Paid up";
+  const history = historyOf(c);
+  el.innerHTML = `
+    <a class="back" href="${esc(lastList)}">‹ ${lastList === "#customers" ? "Customers" : "Today"}</a>
+    <div class="cust-head">
+      <h1 class="page-title">${esc(c.name)}</h1>
+      <p class="cust-meta">${esc(c.contact_person)} · ${esc(c.city)} · <span class="num">${esc(c.phone)}</span></p>
+      <div class="btn-row">
+        <button class="btn" type="button" data-todo="Calling">Call</button>
+        <button class="btn" type="button" data-todo="Opening a WhatsApp chat">WhatsApp</button>
+      </div>
+    </div>
+    <div class="cust-summary">
+      <p class="cust-owes">${owes}</p>
+      <p class="cust-habit">${habitWords(c)}</p>
+    </div>
+    <div class="btn-row cust-actions">
+      ${c.remind_order_id ? `<button class="btn btn-primary" type="button" data-remind="${c.id}">Send reminder</button>` : ""}
+      <button class="btn" type="button" data-todo="Record payment">Record payment</button>
+      <button class="btn" type="button" data-todo="Note a promise">Note a promise</button>
+    </div>
+    <div class="section-head"><h2>Machines</h2><span class="count">${ordersOf(c.id).length} ${ordersOf(c.id).length === 1 ? "sale" : "sales"}</span></div>
+    ${ordersOf(c.id).map(saleHtml).join("")}
+    <div class="section-head"><h2>History</h2></div>
+    ${history ? `<ul class="history">${history}</ul>` : `<p class="today-empty">No payments or reminders yet.</p>`}`;
+}
+
+/* ---------- reminder sheet ---------- */
+const LANGS = [["hinglish", "Hinglish"], ["hindi", "हिंदी"], ["punjabi", "ਪੰਜਾਬੀ"], ["english", "English"]];
+const TONES = ["upcoming", "gentle", "firm", "serious"];
+const TONE_WORDS = {upcoming: "Friendly", gentle: "Gentle", firm: "Firm", serious: "Serious"};
+
+function reminderFacts(c) {
+  const o = BOOK.orders.find(x => x.id === c.remind_order_id);
+  let amount, due;
+  if (o.overdue > 0.5) { amount = o.overdue; due = o.milestones.find(m => m.status === "overdue").due_date; }
+  else { amount = o.next_due.amount; due = o.next_due.due_date; }
+  // PLAN.md rule 7: tone from days late, one step firmer per reminder since the last payment.
+  const lastPay = ordersOf(c.id).flatMap(x => x.payments).map(p => p.date).sort().pop() || "";
+  const reminders = contacts.filter(x => x.customer_id === c.id && x.kind === "reminder" && x.date > lastPay).length;
+  const d = o.days_overdue;
+  let tone = d <= 0 ? 0 : d < 15 ? 1 : d <= 45 ? 2 : 3;
+  if (tone > 0) tone = Math.min(3, tone + reminders);
+  const first = (c.contact_person || "").split(/\s+/)[0] || "";
+  return {
+    order: o, amount, tone: TONES[tone], days: d,
+    person: first.replace(/\.$/, "").length > 1 ? first : c.contact_person,
+    vars: {biz: BUSINESS, amt: inr(amount), machine: o.machine, id: o.id, due: fmtDate(due, true), days: d},
+  };
+}
+const fill = (tpl, f) => tpl.replace(/\{(\w+)\}/g, (_, k) => k === "person" ? f.person : f.vars[k]);
+
+function openReminder(customerId) {
+  const c = customer(customerId);
+  const f = reminderFacts(c);
+  let lang = "hinglish";
+  openSheet(`
+    <form class="sheet-body" method="dialog" id="remind-form">
+      <div class="sheet-grip" aria-hidden="true"></div>
+      <div class="sheet-head">
+        <div>
+          <h2 class="sheet-title" id="sheet-title">Reminder to ${esc(c.name)}</h2>
+          <p class="sheet-sub"><span class="${f.order.overdue > 0.5 ? "late" : ""}">${inr(f.amount)} ${f.order.overdue > 0.5 ? `late, ${f.days} days` : "due " + f.vars.due}</span> · ${esc(f.order.machine)}</p>
+        </div>
+        <button class="btn btn-link sheet-close" type="button" data-close aria-label="Close">Close</button>
+      </div>
+      <div class="field">
+        <label id="lang-label">Language</label>
+        <div class="segmented" role="group" aria-labelledby="lang-label">
+          ${LANGS.map(([k, label]) => `<button type="button" data-lang="${k}" aria-pressed="${k === lang}" lang="${k === "hindi" ? "hi" : k === "punjabi" ? "pa" : "en"}">${label}</button>`).join("")}
+        </div>
+      </div>
+      <div class="field">
+        <label for="remind-text">Message to ${esc(c.contact_person)} <span class="reminder-tone">· ${TONE_WORDS[f.tone]} tone</span></label>
+        <textarea id="remind-text" class="textarea"></textarea>
+      </div>
+      <div class="sheet-foot">
+        <button class="btn" type="button" data-close>Cancel</button>
+        <button class="btn btn-primary" type="submit">Send on WhatsApp</button>
+      </div>
+    </form>`);
+  const text = $("#remind-text", sheet);
+  const draft = () => { text.value = fill(TEMPLATES[lang][f.tone], f); text.setSelectionRange(0, 0); text.scrollTop = 0; };
+  draft();
+  sheet.querySelectorAll("[data-lang]").forEach(b => b.addEventListener("click", () => {
+    lang = b.dataset.lang;
+    sheet.querySelectorAll("[data-lang]").forEach(x => x.setAttribute("aria-pressed", x === b));
+    draft();
+  }));
+  sheet.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", closeSheet));
+  $("#remind-form", sheet).addEventListener("submit", e => {
+    e.preventDefault();
+    const entry = {id: Date.now(), customer_id: c.id, order_id: f.order.id, date: TODAY, kind: "reminder", language: lang};
+    contacts.push(entry);
+    closeSheet();
+    render();
+    toast(`Reminder sent to ${c.name}`, {action: {label: "Undo", onClick: () => {
+      contacts.splice(contacts.indexOf(entry), 1);
+      render();
+    }}});
+  });
+  text.focus({preventScroll: true});
+  text.setSelectionRange(0, 0);
+  text.scrollTop = 0;
+}
+
+/* ---------- router (becomes static/js/app.js) ---------- */
+let lastList = "#today";
+function render() {
+  const hash = location.hash || "#today";
+  const view = $("#view");
+  const m = hash.match(/^#customer-(\d+)$/);
+  const tab = m ? (lastList === "#customers" ? "customers" : "today") : hash.slice(1);
+  document.querySelectorAll("[data-tab]").forEach(a => {
+    if (a.dataset.tab === tab) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+  });
+  if (m) return renderCustomer(view, Number(m[1]));
+  if (hash === "#customers") { lastList = hash; return renderCustomers(view); }
+  if (hash === "#ask") return renderAsk(view);
+  lastList = "#today";
+  renderToday(view);
+}
+
+function renderAsk(el) {
+  const qs = ["Who owes me the most?", "What is due this week?", "Who promised to pay and didn't?"];
+  el.innerHTML = `
+    <div class="page-head"><h1 class="page-title">Ask</h1><p class="soft">Ask about your customers and payments in your own words.</p></div>
+    <div class="ask-suggest">${qs.map(q => `<button class="btn" type="button" data-todo="Answers">${q}</button>`).join("")}</div>
+    <form class="ask-form" id="ask-form">
+      <label for="ask-input" class="visually-hidden">Your question</label>
+      <input id="ask-input" class="input" type="text" placeholder="Type a question" autocomplete="off">
+      <button class="btn btn-primary" type="submit">Ask</button>
+    </form>
+    <p class="ask-status">AI off · answers use the offline helper</p>`;
+  $("#ask-form", el).addEventListener("submit", e => { e.preventDefault(); notInMockup("Answers"); });
+}
+
+document.addEventListener("click", e => {
+  const remind = e.target.closest("[data-remind]");
+  if (remind) { e.stopPropagation(); return openReminder(Number(remind.dataset.remind)); }
+  const todo = e.target.closest("[data-todo]");
+  if (todo) return notInMockup(todo.dataset.todo);
+  if (e.target.closest("[data-add-sale]")) return notInMockup("Add sale");
+  const row = e.target.closest("[data-customer]");
+  if (row) location.hash = `#customer-${row.dataset.customer}`;
+});
+document.addEventListener("keydown", e => {
+  const row = e.target.closest?.("[data-customer]");
+  if (row && e.target === row && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); location.hash = `#customer-${row.dataset.customer}`; }
+});
+window.addEventListener("hashchange", () => { render(); window.scrollTo(0, 0); });
+render();
+</script>
+</body>
+</html>
