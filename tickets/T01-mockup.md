@@ -1,5 +1,5 @@
 # T01 — Clickable mockup of Today, customer page and reminder sheet
-**Status:** BLOCKED (needs human: mockup approval)
+**Status:** DONE
 **Prereqs:** — · **Branch:** t01-mockup
 
 ## Goal
@@ -47,6 +47,8 @@ Start of the interface track: T01 → T06 → T07 / T11 → … PLAN.md §Screen
   reminded 9 Nov, Kaur was reminded 20 Oct). Sending a reminder hides that customer from Today (rule 3) and adds it
   to their History; Undo puts both back. Call, WhatsApp, Record payment, Note a promise, Add sale and Ask answers
   show a "not in this mockup yet" toast.
+- Done as built: Ankur approved it on 15 Nov 2026 after checking it in dark mode only; light mode was not looked at
+  by a human. T06 should check light mode when it copies the stylesheet.
 
 ## Tests
 
@@ -62,6 +64,6 @@ a row → the customer page → Send reminder → switch language → Send on Wh
 - [x] `mockup/index.html` and `mockup/style.css` exist and show the three screens with the demo data
 - [x] It works at 390px and desktop width, in light and dark mode, with no horizontal scroll
 - [x] Published as a private artifact; the link is given to Ankur
-- [ ] Ankur has approved the look and layout in chat. Until then, set `**Status:** BLOCKED (needs human: mockup
+- [x] Ankur has approved the look and layout in chat. Until then, set `**Status:** BLOCKED (needs human: mockup
       approval)`. Changes he asks for are made here, and any that change a decision are written into PLAN.md
-- [ ] Committed: `T01: mockup of the new design`
+- [x] Committed: `T01: mockup of the new design`
