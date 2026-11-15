@@ -2,6 +2,7 @@
 
 Run:  .venv/bin/python app.py   then open http://localhost:5055
 """
+import math
 import os
 from datetime import date, timedelta
 
@@ -27,6 +28,7 @@ def load_env_file(path=os.path.join(HERE, ".env")):
 load_env_file()
 
 import ai  # noqa: E402  (imported after .env is loaded)
+import contact_log  # noqa: E402
 import db  # noqa: E402
 import ledger  # noqa: E402
 import offline  # noqa: E402
@@ -48,6 +50,17 @@ def book():
 
 def bad(msg, code=400):
     return jsonify({"error": msg}), code
+
+
+def number(value):
+    """The value as a float, or None when it is missing, not a number, NaN or infinite."""
+    if value is None or isinstance(value, bool):
+        return None
+    try:
+        n = float(value)
+    except (TypeError, ValueError):
+        return None
+    return n if math.isfinite(n) else None
 
 
 def valid_date(s):
@@ -83,22 +96,23 @@ def get_today():
 def create_order():
     body = request.get_json(force=True)
     machine = (body.get("machine") or "").strip()
-    total = float(body.get("total") or 0)
+    total = number(body.get("total"))
     order_date = body.get("order_date")
     milestones = body.get("milestones") or []
-    advance = float(body.get("advance_received") or 0)
+    advance = number(body.get("advance_received") or 0)
 
     if not machine:
         return bad("Enter the machine or item sold.")
-    if total <= 0:
+    if total is None or total <= 0:
         return bad("Enter the total amount.")
     if not valid_date(order_date):
         return bad("Enter a valid order date.")
-    if not milestones or any(not valid_date(m.get("due_date")) or float(m.get("amount", 0)) <= 0 for m in milestones):
+    if not milestones or any(not valid_date(m.get("due_date")) or (number(m.get("amount")) or 0) <= 0
+                             for m in milestones):
         return bad("Each payment instalment needs an amount and a due date.")
-    if abs(sum(float(m["amount"]) for m in milestones) - total) > 1:
+    if abs(sum(number(m["amount"]) for m in milestones) - total) > 1:
         return bad("The instalments must add up to the total amount.")
-    if advance < 0 or advance > total:
+    if advance is None or advance < 0 or advance > total:
         return bad("Advance received can't be more than the total.")
 
     with db.connect() as conn:
@@ -111,7 +125,7 @@ def create_order():
             cid = db.add_customer(conn, name, nc.get("contact_person", "").strip(),
                                   nc.get("phone", "").strip(), nc.get("city", "").strip())
         oid = db.add_order(conn, int(cid), machine, order_date, total,
-                           [{"label": m.get("label") or "Instalment", "amount": float(m["amount"]),
+                           [{"label": m.get("label") or "Instalment", "amount": number(m["amount"]),
                              "due_date": m["due_date"]} for m in milestones],
                            body.get("notes", ""))
         if advance > 0:
@@ -122,12 +136,12 @@ def create_order():
 @app.post("/api/orders/<int:order_id>/payments")
 def record_payment(order_id):
     body = request.get_json(force=True)
-    amount = float(body.get("amount") or 0)
+    amount = number(body.get("amount"))
     pay_date = body.get("date")
     order = next((o for o in book()["orders"] if o["id"] == order_id), None)
     if not order:
         return bad("Order not found.", 404)
-    if amount <= 0:
+    if amount is None or amount <= 0:
         return bad("Enter the amount received.")
     if amount > order["balance"] + 1:
         return bad(f"That's more than the balance of {ledger.inr(order['balance'])}.")
@@ -135,6 +149,86 @@ def record_payment(order_id):
         return bad("Enter a valid date.")
     with db.connect() as conn:
         db.add_payment(conn, order_id, pay_date, amount, body.get("mode", ""), body.get("note", ""))
+    return jsonify({"ok": True})
+
+
+def history(data, customer_id, customer_orders):
+    """The customer's payments and contacts in one list, newest first; payments before contacts on the same day."""
+    machines = {o["id"]: o["machine"] for o in customer_orders}
+    rows = []
+    for p in data["payments"]:
+        if p["order_id"] in machines:
+            rows.append((0, p["id"], {
+                "date": p["date"], "kind": "payment", "amount": p["amount"], "order_id": p["order_id"],
+                "machine": machines[p["order_id"]], "mode": p["mode"], "note": p["note"],
+                "language": None, "promised_date": None, "contact_id": None,
+            }))
+    for c in data["contacts"]:
+        if c["customer_id"] == customer_id:
+            rows.append((1, c["id"], {
+                "date": c["date"], "kind": c["kind"], "amount": c["promised_amount"], "order_id": c["order_id"],
+                "machine": machines.get(c["order_id"]), "mode": None, "note": c["note"],
+                "language": c["language"], "promised_date": c["promised_date"], "contact_id": c["id"],
+            }))
+    rows.sort(key=lambda r: (r[2]["date"], -r[0], r[1]), reverse=True)
+    return [row for _, _, row in rows]
+
+
+@app.get("/api/customers/<int:customer_id>")
+def get_customer(customer_id):
+    data, day = db.load_all(), date.today()
+    b = ledger.build(data, day)
+    c = next((c for c in b["customers"] if c["id"] == customer_id), None)
+    if not c:
+        return bad("Customer not found.", 404)
+    sales = [o for o in b["orders"] if o["customer_id"] == customer_id]
+    return jsonify({
+        **{k: c[k] for k in ("id", "name", "contact_person", "phone", "city")},
+        "owed": c["outstanding"],
+        "late": c["overdue"],
+        "days_late": c["days_overdue"],
+        "habit": c["habit"],
+        "avg_days_late": c["avg_days_late"],
+        "remind_order_id": c["remind_order_id"],
+        "promise": contact_log.promise_status(data, customer_id, day),
+        "sales": sales,
+        "history": history(data, customer_id, sales),
+    })
+
+
+@app.post("/api/customers/<int:customer_id>/contacts")
+def add_contact(customer_id):
+    body = request.get_json(force=True)
+    data, day = db.load_all(), date.today().isoformat()
+    if not any(c["id"] == customer_id for c in data["customers"]):
+        return bad("Customer not found.", 404)
+    kind = body.get("kind")
+    if kind not in ("reminder", "promise"):
+        return bad("Unknown contact type.")
+    order_id = body.get("order_id")
+    if order_id is not None and not any(o["id"] == order_id and o["customer_id"] == customer_id
+                                        for o in data["orders"]):
+        return bad("That sale isn't this customer's.")
+    promised_amount = promised_date = None
+    if kind == "promise":
+        promised_amount, promised_date = number(body.get("promised_amount")), body.get("promised_date")
+        if promised_amount is None or promised_amount <= 0:
+            return bad("Enter the amount they promised.")
+        if not valid_date(promised_date) or promised_date < day:
+            return bad("Enter the date they promised to pay by.")
+    with db.connect() as conn:
+        new_id = db.add_contact(conn, customer_id, day, kind, order_id=order_id,
+                                language=(body.get("language") or "") if kind == "reminder" else "",
+                                promised_amount=promised_amount, promised_date=promised_date,
+                                note=(body.get("note") or "").strip())
+    return jsonify({"id": new_id})
+
+
+@app.delete("/api/contacts/<int:contact_id>")
+def delete_contact(contact_id):
+    with db.connect() as conn:
+        if not db.delete_contact(conn, contact_id):
+            return bad("Already removed.", 404)
     return jsonify({"ok": True})
 
 
