@@ -31,6 +31,7 @@ import db  # noqa: E402
 import ledger  # noqa: E402
 import offline  # noqa: E402
 import seed  # noqa: E402
+import today  # noqa: E402
 
 BUSINESS_NAME = os.environ.get("BUSINESS_NAME", "Demo Machinery Works")
 IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
@@ -70,6 +71,12 @@ def status():
 @app.get("/api/book")
 def get_book():
     return jsonify(book())
+
+
+@app.get("/api/today")
+def get_today():
+    data, day = db.load_all(), date.today()
+    return jsonify(today.build_today(ledger.build(data, day), data, day))
 
 
 @app.post("/api/orders")
