@@ -1,5 +1,5 @@
 # T06 — App shell: new design, navigation, Customers list and Ask
-**Status:** TODO
+**Status:** IN PROGRESS
 **Prereqs:** T01 · **Branch:** t06-app-shell
 
 ## Goal
