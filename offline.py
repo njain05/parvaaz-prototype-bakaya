@@ -30,14 +30,21 @@ TEMPLATES = {
 }
 
 
-def tone_for(days_overdue):
+TONES = ["upcoming", "gentle", "firm", "serious"]
+
+
+def tone_for(days_overdue, reminder_count=0):
+    """The reminder tone: from days late, then one step firmer per earlier reminder, never past 'serious'.
+    A payment that is not yet due stays 'upcoming' however often it was mentioned."""
     if days_overdue <= 0:
         return "upcoming"
     if days_overdue < 15:
-        return "gentle"
-    if days_overdue <= 45:
-        return "firm"
-    return "serious"
+        step = 1
+    elif days_overdue <= 45:
+        step = 2
+    else:
+        step = 3
+    return TONES[min(step + reminder_count, len(TONES) - 1)]
 
 
 def greeting_name(contact_person, fallback):
@@ -49,7 +56,7 @@ def greeting_name(contact_person, fallback):
 
 
 def template_reminder(facts, language):
-    t = TEMPLATES.get(language, TEMPLATES["english"])[tone_for(facts["days_overdue"])]
+    t = TEMPLATES.get(language, TEMPLATES["english"])[tone_for(facts["days_overdue"], facts.get("reminder_count", 0))]
     return t.format(
         person=greeting_name(facts["contact_person"], facts["customer"]),
         biz=facts["business_name"],
@@ -65,7 +72,24 @@ def _bullets(lines):
     return "\n".join(f"• {line}" for line in lines)
 
 
-def answer(question, book):
+PROMISE_WORDS = ("promise", "promised", "wada", "vaada", "vada")
+
+
+def promise_answer(people):
+    """People with an open or broken promise to pay, one line each. `people` are ai_snapshot() customers."""
+    rows = [
+        f"{p['name']}: {inr(p['promise']['amount'])} by {nice_date(p['promise']['promised_date'])} "
+        f"({p['promise']['state']})"
+        for p in people
+        if p.get("promise") and p["promise"]["state"] in ("open", "broken")
+    ]
+    if not rows:
+        return "No one has an open promise to pay."
+    return "Promises to pay:\n" + _bullets(rows)
+
+
+def answer(question, book, people=()):
+    """A keyword answer. `people` are the ai_snapshot() customers, which carry the contact log facts."""
     q = question.lower()
     customers = book["customers"]
     t = book["totals"]
@@ -82,6 +106,9 @@ def answer(question, book):
 
     def has(*words):
         return any(w in q for w in words)
+
+    if has(*PROMISE_WORDS):
+        return promise_answer(people)
 
     if has("week", "hafte", "hafta", "upcoming", "aane", "soon", "next"):
         rows = []

@@ -240,7 +240,8 @@ def reminder_facts(order):
         amount, due = order["next_due"]["amount"], order["next_due"]["due_date"]
     else:
         return None
-    customer = next(c for c in db.load_all()["customers"] if c["id"] == order["customer_id"])
+    data = db.load_all()
+    customer = next(c for c in data["customers"] if c["id"] == order["customer_id"])
     return {
         "business_name": BUSINESS_NAME,
         "customer": order["customer_name"],
@@ -251,6 +252,7 @@ def reminder_facts(order):
         "due_date": ledger.nice_date(due),
         "days_overdue": order["days_overdue"],
         "phone": customer["phone"],
+        "reminder_count": contact_log.reminder_count(data, order["customer_id"]),
     }
 
 
@@ -275,15 +277,23 @@ def reminder():
                     "phone": facts["phone"], "note": note})
 
 
-def ai_snapshot(b):
-    """A compact view of the credit book to send to the AI."""
+def ai_snapshot(b, data=None):
+    """A compact view of the credit book to send to the AI, with each customer's reminders and promise."""
+    data = data or db.load_all()
+
+    def customer(c):
+        last = contact_log.last_reminder(data, c["id"])
+        return {
+            **{k: c[k] for k in ("name", "city", "outstanding", "overdue", "days_overdue", "habit", "avg_days_late")},
+            "reminders_since_last_payment": contact_log.reminder_count(data, c["id"]),
+            "last_reminder_date": last["date"] if last else None,
+            "promise": contact_log.promise_status(data, c["id"], b["today"]),
+        }
+
     return {
         "today": b["today"],
         "totals": b["totals"],
-        "customers": [
-            {k: c[k] for k in ("name", "city", "outstanding", "overdue", "days_overdue", "habit", "avg_days_late")}
-            for c in b["customers"]
-        ],
+        "customers": [customer(c) for c in b["customers"]],
         "orders": [
             {
                 "id": o["id"], "customer": o["customer_name"], "machine": o["machine"],
@@ -306,13 +316,14 @@ def ask():
     if not question:
         return bad("Type a question.")
     b = book()
+    snapshot = ai_snapshot(b)
     note = None
     if ai.enabled():
         try:
-            return jsonify({"answer": ai.answer_question(question, ai_snapshot(b)), "source": "ai"})
+            return jsonify({"answer": ai.answer_question(question, snapshot), "source": "ai"})
         except ai.AIError as e:
             note = f"AI unavailable ({e}). Showing a basic answer."
-    return jsonify({"answer": offline.answer(question, b), "source": "offline", "note": note})
+    return jsonify({"answer": offline.answer(question, b, snapshot["customers"]), "source": "offline", "note": note})
 
 
 @app.post("/api/ai/scan")

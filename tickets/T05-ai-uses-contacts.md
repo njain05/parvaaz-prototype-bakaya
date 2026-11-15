@@ -1,5 +1,5 @@
 # T05 — Reminders and Ask use the contact log
-**Status:** TODO
+**Status:** DONE
 **Prereqs:** T02 · **Branch:** t05-ai-uses-contacts
 
 ## Goal
@@ -31,6 +31,14 @@ Data track: T02 → T05 → T12. PLAN.md §Today rules 7, §Assumed 4.
   broken promise: `"{name}: {inr(amount)} by {date} (broken)"` / `(open)`. None → `"No one has an open promise
   to pay."` Put this check before the existing keyword checks (after the customer-name check).
 - The `/api/ai/reminder` request and response shapes do not change (T07 builds against them).
+- Done as built: `offline.answer(question, book, people=())` takes the `ai_snapshot()` customers as `people`,
+  since the book has no contact log. So the `/api/ai/ask` route (outside the listed functions) now builds the
+  snapshot once and passes its customers to both the AI and the offline answer. `ai_snapshot(b, data=None)` loads
+  the data itself when not given it.
+- Done as built: the reminder-step test uses Gupta (15 days late, so firm, reminded 2 days ago → serious), not
+  Sharma: Sharma is 60 days late, already serious, so one more step can't show.
+- Offline Ask still answers "Sharma ko kab remind kiya tha?" with what Sharma owes; only the AI uses
+  `last_reminder_date`. The ticket asked offline for promise questions only.
 
 ## Tests
 
@@ -51,7 +59,7 @@ curl -s -X POST localhost:5055/api/ai/ask -H 'Content-Type: application/json' -d
 
 ## Done when
 
-- [ ] Reminder tone rises with `reminder_count` in templates and in the AI prompt
-- [ ] Ask (offline and AI) can answer promise questions
-- [ ] `tests/test_reminders.py` passes, and so does the whole suite
-- [ ] Committed: `T05: reminders and Ask use the contact log`
+- [x] Reminder tone rises with `reminder_count` in templates and in the AI prompt
+- [x] Ask (offline and AI) can answer promise questions
+- [x] `tests/test_reminders.py` passes, and so does the whole suite
+- [x] Committed: `T05: reminders and Ask use the contact log`

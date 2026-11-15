@@ -25,8 +25,8 @@ long-term relationships, takes time and is easy to let slip.
 | **Dashboard** | Total outstanding, overdue amount, what's due in the next 7 days, overdue money grouped by how late it is, and a "Who owes you" list sorted by overdue amount |
 | **Payment habits** | Each customer is labelled *Pays on time*, *Sometimes late* or *Often late*, based on how late their past instalments were |
 | **Orders and payment plans** | Each machine order has its instalments (e.g. 30% advance, 60% before dispatch, 10% after installation). Recording a payment updates everything automatically |
-| ✨ **AI payment reminders** | Writes a WhatsApp reminder in **Hinglish, Hindi, Punjabi or English**. The tone gets firmer the later the payment is, but always stays respectful. One tap opens it in WhatsApp |
-| ✨ **Ask AI** | Ask questions in plain language, e.g. *"Sabse zyada paisa kiska baaki hai?"* or *"What's due this week?"* |
+| ✨ **AI payment reminders** | Writes a WhatsApp reminder in **Hinglish, Hindi, Punjabi or English**. The tone gets firmer the later the payment is, and one step firmer for each reminder already sent since the customer last paid, but always stays respectful. One tap opens it in WhatsApp |
+| ✨ **Ask AI** | Ask questions in plain language, e.g. *"Sabse zyada paisa kiska baaki hai?"* or *"What's due this week?"* or *"Who promised to pay?"* |
 | ✨ **Scan a bill** | Take a photo of an invoice and the AI fills in a new order (customer, machine, amount, date) for you to check |
 
 **Offline demo mode:** without an API key, the app still works. Reminders come from built-in templates in all four
