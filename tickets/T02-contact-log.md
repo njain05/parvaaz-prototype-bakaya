@@ -1,5 +1,5 @@
 # T02 — Contact log table, helpers, seed data and test setup
-**Status:** TODO
+**Status:** DONE
 **Prereqs:** — · **Branch:** t02-contact-log
 
 ## Goal
@@ -39,6 +39,9 @@ Contract ticket for the data track: T02 → T03 / T04 / T05. PLAN.md §Shared co
   `db.init()`, and removes `ANTHROPIC_API_KEY` and `ANTHROPIC_AUTH_TOKEN` from the environment so tests never call
   the API. A `seeded` fixture runs `seed.seed()` and returns `db.load_all()`.
 - Ledger tests use small hand-built `data` dicts with a fixed `today`, not the seed.
+- Done as built: each seeded contact has `order_id` set to the customer's newest order, so the customer history can
+  name the machine. `promise_status` takes `today` as a `date` or a `YYYY-MM-DD` string. The README has a "Run the
+  tests" section and lists `contact_log.py` and `tests/`.
 
 ## Tests
 
@@ -60,9 +63,9 @@ Contract ticket for the data track: T02 → T03 / T04 / T05. PLAN.md §Shared co
 
 ## Done when
 
-- [ ] `contacts` table, `add_contact`, `delete_contact` and `load_all()["contacts"]` exist as in PLAN.md
-- [ ] `contact_log.py` has the four functions with the PLAN.md signatures
-- [ ] The seed has the five contact cases above
-- [ ] `requirements-dev.txt` and `tests/` exist and `.venv/bin/python -m pytest -q` passes
-- [ ] The app still starts and the old UI still works (`/api/book` unchanged)
-- [ ] Committed: `T02: contact log table, helpers, seed and tests`
+- [x] `contacts` table, `add_contact`, `delete_contact` and `load_all()["contacts"]` exist as in PLAN.md
+- [x] `contact_log.py` has the four functions with the PLAN.md signatures
+- [x] The seed has the five contact cases above
+- [x] `requirements-dev.txt` and `tests/` exist and `.venv/bin/python -m pytest -q` passes
+- [x] The app still starts and the old UI still works (`/api/book` unchanged)
+- [x] Committed: `T02: contact log table, helpers, seed and tests`

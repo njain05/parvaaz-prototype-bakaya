@@ -1,5 +1,6 @@
 """Fictional demo data for a textile-machinery maker. Dates are relative to today,
-so the demo always shows a realistic mix of overdue, due-soon and paid orders.
+so the demo always shows a realistic mix of overdue, due-soon and paid orders, plus the reminders and
+promises that the Today screen reacts to.
 
 Run directly to reset the demo data:  python seed.py
 """
@@ -65,6 +66,22 @@ DEMO = [
     ]),
 ]
 
+# The contact log: (customer, kind, day, extra fields), each about the customer's newest order.
+# Each entry gives the Today screen a case to show.
+CONTACTS = [
+    # Reminded 9 days ago, no payment since: back on Today as "Reminded 9 days ago, no payment yet"
+    ("Sharma Knit Processors", "reminder", -9, {"language": "hinglish"}),
+    # Promised ₹5,00,000 by 3 days ago and paid nothing since: a broken promise
+    ("Shree Ganesh Processors", "promise", -10, {"promised_amount": 500000, "promised_date": -3,
+                                                 "note": "Said the cheque will come after their buyer pays"}),
+    # Reminded 2 days ago: hidden from Today for now
+    ("Gupta Woollen Mills", "reminder", -2, {"language": "punjabi"}),
+    # Promised ₹1,00,000 by 6 days from now: an open promise, hidden from Today
+    ("Arora Fabrics", "promise", -4, {"promised_amount": 100000, "promised_date": 6}),
+    # Reminded 40 days ago, then paid 20 days ago: the reminder no longer counts
+    ("Kaur Hosiery Works", "reminder", -40, {"language": "english"}),
+]
+
 
 def seed(today=None):
     today = today or date.today()
@@ -75,13 +92,19 @@ def seed(today=None):
     db.init()
     db.wipe()
     with db.connect() as conn:
+        ids, order_ids = {}, {}  # by customer name; order_ids keeps their newest order
         for (name, person, phone, city), orders in DEMO:
-            cid = db.add_customer(conn, name, person, phone, city)
+            cid = ids[name] = db.add_customer(conn, name, person, phone, city)
             for machine, total, order_day, plan, pays in orders:
                 milestones = [{"label": m["label"], "amount": m["amount"], "due_date": day(m["due"])} for m in plan]
-                oid = db.add_order(conn, cid, machine, day(order_day), total, milestones)
+                oid = order_ids[name] = db.add_order(conn, cid, machine, day(order_day), total, milestones)
                 for pay_day, amount, mode in pays:
                     db.add_payment(conn, oid, day(pay_day), amount, mode)
+        for name, kind, contact_day, extra in CONTACTS:
+            extra = dict(extra)
+            if "promised_date" in extra:
+                extra["promised_date"] = day(extra["promised_date"])
+            db.add_contact(conn, ids[name], day(contact_day), kind, order_id=order_ids[name], **extra)
 
 
 if __name__ == "__main__":
