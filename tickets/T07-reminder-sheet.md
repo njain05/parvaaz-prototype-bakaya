@@ -1,0 +1,54 @@
+# T07 — Reminder sheet: draft, edit, send on WhatsApp, log, undo
+**Status:** TODO
+**Prereqs:** T04, T06 · **Branch:** t07-reminder-sheet
+
+## Goal
+
+From anywhere in the app, the owner can open a reminder for a customer, pick the language, edit the draft, and
+send it on WhatsApp in one tap. Sending records the reminder in the contact log, with an Undo in case they didn't
+actually send it.
+
+Interface track: T06 → T07 → T08 (Today) and T09 (customer page). PLAN.md §Send reminder, §Assumed 2.
+
+## Scope / files
+
+- `static/js/reminder.js`: replace the stub with `openReminder(customerId, orderId, {onSent} = {})`.
+- `static/style.css`: only the `/* ===== screen: reminder ===== */` section.
+
+## Details
+
+- Opens with `openSheet`. Header: customer name, and the machine and amount the reminder is about.
+- Language switch as four buttons in a row: Hinglish · हिंदी · ਪੰਜਾਬੀ · English. Remember the choice with
+  `store("lang")`, default Hinglish.
+- Draft: `POST /api/ai/reminder {order_id, language}` (shape unchanged). While waiting: "Writing…". Under the text
+  a small line: "Written by AI. Check it before sending." or "Written from a template." plus any `note`.
+  A **Rewrite** text button asks again.
+- **Send on WhatsApp**: `window.open(whatsappUrl(phone, text), "_blank")`, then
+  `POST /api/customers/<customerId>/contacts {kind: "reminder", order_id, language}`, close the sheet, call
+  `onSent()`, and `toast("Reminder sent to {name}", {action: {label: "Undo", onClick}})`. Undo calls
+  `DELETE /api/contacts/<id>`, then `onSent()` again so the screen refreshes, and toasts "Reminder removed".
+- If logging fails, the message has still gone to WhatsApp: toast "Sent, but couldn't save it in the history:
+  {error}".
+- Errors from the draft request show in the sheet, with Rewrite still available.
+
+## Tests
+
+manual: see Check
+
+## Check
+
+The Today and customer screens are still stubs, so open it from the browser console on http://localhost:5055:
+
+```js
+const m = await import("/static/js/reminder.js"); m.openReminder(1, 1, {onSent: () => console.log("sent")})
+```
+
+Switch to ਪੰਜਾਬੀ (the draft changes), edit the text, Send on WhatsApp: a WhatsApp tab opens with the text, the toast
+shows with Undo, and `curl localhost:5055/api/customers/1` has the reminder in `history`. Undo: it's gone.
+
+## Done when
+
+- [ ] `openReminder` drafts, switches language, rewrites, and sends to WhatsApp
+- [ ] Sending logs a reminder contact; Undo deletes it
+- [ ] Works at 390px and on desktop, light and dark
+- [ ] Committed: `T07: reminder sheet with WhatsApp send, log and undo`
