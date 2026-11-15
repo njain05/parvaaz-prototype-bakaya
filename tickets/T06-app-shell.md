@@ -1,5 +1,5 @@
 # T06 — App shell: new design, navigation, Customers list and Ask
-**Status:** TODO
+**Status:** DONE
 **Prereqs:** T01 · **Branch:** t06-app-shell
 
 ## Goal
@@ -42,6 +42,12 @@ Prefactoring ticket for the interface track: T06 → T07 / T11 → T08 / T09 →
 - Desktop (≥ 768px): top bar with the three items and **+ Add sale** on the right; content column ~680px.
 - Between this ticket and T07–T11, reminders, payments and adding sales are missing from the UI on `main`. That's
   expected; T12 checks everything end to end.
+- Done as built: on the Customers list the late amount sits under the total as "₹10.68 lakh late" (the mockup's
+  layout), not inline after it. Rows are `<a class="row">` links, so they work without JS click handlers.
+- Done as built: `lib.js` also exports `$` and `daysBetween`. Any `[data-close]` button inside the sheet closes it.
+- Done as built: the today, customer and reminder sections of `style.css` keep the mockup's styles for T08, T09
+  and T07 to build on; add-sale and record are empty.
+- Done as built: offline Ask answers still say "overdue" (it comes from `offline.py`, outside this ticket).
 
 ## Tests
 
@@ -59,8 +65,8 @@ manual: see Check
 
 ## Done when
 
-- [ ] Shell, router, `lib.js`, Customers list and Ask work as above
-- [ ] Stub files exist for today, customer, reminder and add-sale, exporting the PLAN.md functions
-- [ ] `static/style.css` has a marked section per screen
-- [ ] The old dashboard, Orders table, Scan tab, ageing chart and header AI pill are gone
-- [ ] Committed: `T06: app shell with new design, navigation, Customers and Ask`
+- [x] Shell, router, `lib.js`, Customers list and Ask work as above
+- [x] Stub files exist for today, customer, reminder and add-sale, exporting the PLAN.md functions
+- [x] `static/style.css` has a marked section per screen
+- [x] The old dashboard, Orders table, Scan tab, ageing chart and header AI pill are gone
+- [x] Committed: `T06: app shell with new design, navigation, Customers and Ask`
