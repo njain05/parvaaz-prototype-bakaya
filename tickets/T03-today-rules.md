@@ -1,5 +1,5 @@
 # T03 — Today rules and `GET /api/today`
-**Status:** TODO
+**Status:** DONE
 **Prereqs:** T02 · **Branch:** t03-today-rules
 
 ## Goal
@@ -46,6 +46,16 @@ Order: Late = broken promises first (biggest promised amount first), then by `am
 by `due_date`, then `amount` descending. `remind_order_id` comes from the ledger customer row (Assumed 3).
 `totals` = `{"owed": book totals outstanding, "late": book totals overdue}`. Dates in why lines like `20 Nov`.
 
+- Done as built: customers who owe nothing are skipped even if their newest promise is broken (they paid
+  everything they owed, just less than they promised).
+- Done as built: a broken-promise row for a customer with nothing late yet uses `amount` = what they owe,
+  `days_late: 0`, `due_date: null`.
+- Done as built: rules run in the order above, so a broken promise shows even if the customer was reminded in
+  the last 5 days.
+- Done as built: `ledger.habit()` counts unpaid late instalments too, so a customer with only one late instalment
+  gets "Usually pays on time." (under 8 days) or "about N days late". The `new` habit (no sentence) only shows on
+  Coming up rows.
+
 ## Tests
 
 `tests/test_today.py`, using the `seeded` fixture and `today=date.today()` (the seed is relative to today), plus
@@ -72,7 +82,7 @@ Shree Ganesh first with "Not received", Sharma with "Reminded 9 days ago", no Gu
 
 ## Done when
 
-- [ ] `today.py` with `build_today` and `lakh`
-- [ ] `GET /api/today` returns the PLAN.md shape
-- [ ] `tests/test_today.py` passes, and so does the whole suite
-- [ ] Committed: `T03: Today rules and /api/today`
+- [x] `today.py` with `build_today` and `lakh`
+- [x] `GET /api/today` returns the PLAN.md shape
+- [x] `tests/test_today.py` passes, and so does the whole suite
+- [x] Committed: `T03: Today rules and /api/today`
