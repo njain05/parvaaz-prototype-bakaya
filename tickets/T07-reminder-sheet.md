@@ -1,5 +1,5 @@
 # T07 — Reminder sheet: draft, edit, send on WhatsApp, log, undo
-**Status:** TODO
+**Status:** DONE
 **Prereqs:** T04, T06 · **Branch:** t07-reminder-sheet
 
 ## Goal
@@ -31,6 +31,12 @@ Interface track: T06 → T07 → T08 (Today) and T09 (customer page). PLAN.md §
   {error}".
 - Errors from the draft request show in the sheet, with Rewrite still available.
 
+- Done as built: the sheet title is "Reminder to {name}" (as in the mockup), with the late or due amount and the
+  machine underneath, and the message label names the contact person. If the sale isn't the customer's, or the
+  customer can't be loaded, the sheet shows that in the header and Send stays disabled. Send is also disabled
+  while a draft is being written or the message is empty. Switching language or tapping Rewrite while a draft is
+  still loading ignores the older reply.
+
 ## Tests
 
 manual: see Check
@@ -48,7 +54,7 @@ shows with Undo, and `curl localhost:5055/api/customers/1` has the reminder in `
 
 ## Done when
 
-- [ ] `openReminder` drafts, switches language, rewrites, and sends to WhatsApp
-- [ ] Sending logs a reminder contact; Undo deletes it
-- [ ] Works at 390px and on desktop, light and dark
-- [ ] Committed: `T07: reminder sheet with WhatsApp send, log and undo`
+- [x] `openReminder` drafts, switches language, rewrites, and sends to WhatsApp
+- [x] Sending logs a reminder contact; Undo deletes it
+- [x] Works at 390px and on desktop, light and dark
+- [x] Committed: `T07: reminder sheet with WhatsApp send, log and undo`
