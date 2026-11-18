@@ -1,5 +1,5 @@
 # T08 — Today screen
-**Status:** TODO
+**Status:** DONE
 **Prereqs:** T03, T07 · **Branch:** t08-today-screen
 
 ## Goal
@@ -25,6 +25,11 @@ Interface track: T03 + T07 → T08 → T12. PLAN.md §Today, §Today rules.
 - Both groups empty: "Nobody to chase today. Everyone has paid, been reminded, or promised a date."
 - The look follows the mockup's Today screen.
 
+- Done as built: the page head also shows today's date above the title ("Wednesday, 18 November"), as in the
+  mockup. A row without a `remind_order_id` has no Send reminder button. Rows can be opened with Enter or Space
+  as well as a tap. After a reminder is sent or undone, only the totals and rows are redrawn, not the whole screen.
+  On phones the Send reminder button is full width.
+
 ## Tests
 
 manual: see Check (the rules themselves are tested in T03)
@@ -40,7 +45,7 @@ manual: see Check (the rules themselves are tested in T03)
 
 ## Done when
 
-- [ ] Today renders totals, Late and Coming up from `/api/today`
-- [ ] Send reminder removes the row, Undo restores it
-- [ ] Empty state shows when there's nothing to do
-- [ ] Committed: `T08: Today screen`
+- [x] Today renders totals, Late and Coming up from `/api/today`
+- [x] Send reminder removes the row, Undo restores it
+- [x] Empty state shows when there's nothing to do
+- [x] Committed: `T08: Today screen`
