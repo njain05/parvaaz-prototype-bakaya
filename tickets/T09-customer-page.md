@@ -1,5 +1,5 @@
 # T09 — Customer page
-**Status:** TODO
+**Status:** DONE
 **Prereqs:** T07 · **Branch:** t09-customer-page
 
 ## Goal
@@ -35,6 +35,15 @@ Sections, in this order:
 - Unknown id (404): "Customer not found." with a link back to Customers.
 - A **‹ Back** link at the top goes to the previous screen (`history.back()`), or Customers if there is none.
 
+Done as built:
+- The contact line also shows the phone number, as in the mockup.
+- Instalment rows keep the mockup's mark column (✓ paid, ! late, · coming up), so a paid row reads
+  "✓ Advance … Due 21 Jul · Paid 23 Jul" instead of putting ✓ after the date.
+- A broken promise in History also says "Not received", with the owner's note.
+- Back uses `history.back()` only after a navigation inside the app; a page opened directly goes to Customers.
+- Any load error (404 included) shows the server's message, e.g. "Customer not found.", and a link to Customers.
+- The actions row (`#cust-actions`) is hidden when empty; T10 adds Record payment and Note a promise to it.
+
 ## Tests
 
 manual: see Check
@@ -50,7 +59,7 @@ Open http://localhost:5055/#/customers/1 at 390px and at desktop width:
 
 ## Done when
 
-- [ ] All five sections render from `/api/customers/<id>`
-- [ ] Send reminder works from the page and History updates
-- [ ] 404 and Back handled
-- [ ] Committed: `T09: customer page`
+- [x] All five sections render from `/api/customers/<id>`
+- [x] Send reminder works from the page and History updates
+- [x] 404 and Back handled
+- [x] Committed: `T09: customer page`

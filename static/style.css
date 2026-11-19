@@ -316,6 +316,9 @@ a.row { color: inherit; text-decoration: none; }
 .cust-owes .sep { color: var(--ink-soft); font-weight: 400; margin: 0 4px; }
 .cust-owes .late { display: inline-block; }
 .cust-habit { font-size: var(--fs-sm); color: var(--ink-soft); }
+.cust-promise { font-size: var(--fs-sm); }
+.cust-head a.btn { text-decoration: none; }
+.cust-actions:empty { display: none; }
 .cust-actions { margin-top: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .cust-actions .btn-primary { grid-column: 1 / -1; }
 @media (min-width: 768px) {
