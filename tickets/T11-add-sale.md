@@ -1,5 +1,5 @@
 # T11 — Add a sale, typed in or scanned from a bill
-**Status:** TODO
+**Status:** IN PROGRESS
 **Prereqs:** T06 · **Branch:** t11-add-sale
 
 ## Goal
