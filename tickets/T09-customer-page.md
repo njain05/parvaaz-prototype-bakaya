@@ -1,5 +1,5 @@
 # T09 — Customer page
-**Status:** TODO
+**Status:** IN PROGRESS
 **Prereqs:** T07 · **Branch:** t09-customer-page
 
 ## Goal
