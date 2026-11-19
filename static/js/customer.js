@@ -3,6 +3,7 @@
 
 import { $, api, daysBetween, esc, fmtDate, inr, lakh, whatsappUrl } from "./lib.js";
 import { openReminder } from "./reminder.js";
+import { dueSoon, openPromise, openRecordPayment } from "./record.js";
 
 const LANG_NAMES = { hinglish: "Hinglish", hindi: "Hindi", punjabi: "Punjabi", english: "English" };
 
@@ -103,11 +104,24 @@ export async function render(el, id) {
     e.preventDefault();
     history.back();
   });
+  let current = null; // the customer as last drawn, for the Record payment and Note a promise sheets
+  const redraw = async () => { current = await draw(el, id); };
   el.addEventListener("click", (e) => {
     const remind = e.target.closest("[data-remind]");
-    if (remind) openReminder(id, Number(remind.dataset.remind), { onSent: () => draw(el, id) });
+    if (remind) openReminder(id, Number(remind.dataset.remind), { onSent: redraw });
+    if (current && e.target.closest("[data-record]")) openRecordPayment(current, { onSaved: redraw });
+    if (current && e.target.closest("[data-promise]")) openPromise(current, { onSaved: redraw });
   });
-  await draw(el, id);
+  await redraw();
+}
+
+// Send reminder, then Record payment (anything owed), then Note a promise (late, or due in the next 7 days).
+function actionsHtml(c) {
+  return [
+    c.remind_order_id ? `<button class="btn btn-primary" type="button" data-remind="${c.remind_order_id}">Send reminder</button>` : "",
+    c.owed > 0.5 ? `<button class="btn" type="button" data-record>Record payment</button>` : "",
+    c.late > 0.5 || dueSoon(c) > 0.5 ? `<button class="btn" type="button" data-promise>Note a promise</button>` : "",
+  ].join("");
 }
 
 async function draw(el, id) {
@@ -117,15 +131,14 @@ async function draw(el, id) {
     c = await api(`/api/customers/${id}`);
   } catch (e) {
     body.innerHTML = `<p class="error">${esc(e.message)}</p><p class="coming-soon"><a href="#/customers">See all customers</a></p>`;
-    return;
+    return null;
   }
   const today = todayISO();
   const history = c.history.map((h) => historyHtml(h, c)).join("");
   body.innerHTML = `
     ${headHtml(c)}
     ${summaryHtml(c)}
-    <div class="btn-row cust-actions" id="cust-actions">${c.remind_order_id
-      ? `<button class="btn btn-primary" type="button" data-remind="${c.remind_order_id}">Send reminder</button>` : ""}</div>
+    <div class="btn-row cust-actions" id="cust-actions">${actionsHtml(c)}</div>
     <section aria-label="Machines">
       <div class="section-head"><h2>Machines</h2><span class="count">${c.sales.length} ${c.sales.length === 1 ? "sale" : "sales"}</span></div>
       ${c.sales.map((o) => saleHtml(o, today)).join("") || `<p class="today-empty">No sales yet.</p>`}
@@ -134,4 +147,5 @@ async function draw(el, id) {
       <div class="section-head"><h2>History</h2></div>
       ${history ? `<ul class="history">${history}</ul>` : `<p class="today-empty">No payments or reminders yet.</p>`}
     </section>`;
+  return c;
 }

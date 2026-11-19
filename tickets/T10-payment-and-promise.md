@@ -1,5 +1,5 @@
 # T10 — Record a payment and note a promise
-**Status:** IN PROGRESS
+**Status:** DONE
 **Prereqs:** T09 · **Branch:** t10-payment-and-promise
 
 ## Goal
@@ -30,6 +30,19 @@ Interface track: T09 → T10 → T12. PLAN.md §Customer page, §Today rules 4�
   days from today), note. Save: `POST /api/customers/<id>/contacts {kind: "promise", promised_amount,
   promised_date, note}`. On success close, `onSaved()`, toast "Promise noted. {name} is off Today until {date}."
 
+Done as built:
+- The Check's "Bansal Dyeing House (two sales)" has only one unpaid sale (its Brushing Machine is paid in full),
+  so its sheet shows "For: Stenter, 8 chamber". The sale picker was checked on Tirupur Knit Finishers, which has
+  two unpaid sales. When there are several, the one Send reminder is about is chosen first.
+- The amount fields accept "5,10,000" or "₹5,10,000". An empty or bad amount goes to the server, which answers
+  "Enter the amount received." in the sheet.
+- The payment date can't be later than today, and the promise date picker starts at today (`max`/`min`); typed
+  dates are still checked by the server.
+- `dueSoon(customer)` is exported from `record.js`; `customer.js` uses it to decide whether to show
+  Note a promise.
+- History puts payments before contacts on the same day (server order from T04), so a promise noted right after a
+  payment shows second.
+
 ## Tests
 
 manual: see Check (validation is tested in T04)
@@ -45,7 +58,7 @@ On `#/customers/1` (Sharma, one unpaid sale):
 
 ## Done when
 
-- [ ] Record payment works with one or several unpaid sales
-- [ ] Note a promise saves and hides the customer from Today
-- [ ] Errors show inside the sheet
-- [ ] Committed: `T10: record payment and note a promise`
+- [x] Record payment works with one or several unpaid sales
+- [x] Note a promise saves and hides the customer from Today
+- [x] Errors show inside the sheet
+- [x] Committed: `T10: record payment and note a promise`
