@@ -130,7 +130,7 @@ def create_order():
                            body.get("notes", ""))
         if advance > 0:
             db.add_payment(conn, oid, order_date, advance, body.get("advance_mode", ""), "Advance")
-    return jsonify({"id": oid})
+    return jsonify({"id": oid, "customer_id": int(cid)})
 
 
 @app.post("/api/orders/<int:order_id>/payments")
