@@ -1,5 +1,5 @@
 # T10 — Record a payment and note a promise
-**Status:** TODO
+**Status:** IN PROGRESS
 **Prereqs:** T09 · **Branch:** t10-payment-and-promise
 
 ## Goal
