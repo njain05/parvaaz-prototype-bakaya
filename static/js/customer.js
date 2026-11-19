@@ -80,7 +80,7 @@ function saleHtml(o, today) {
 function historyHtml(h, c) {
   let what, detail, late = false;
   if (h.kind === "payment") {
-    what = `Paid ${inr(h.amount)} · ${h.mode}`;
+    what = `Paid ${inr(h.amount)}${h.mode ? ` · ${h.mode}` : ""}`;
     detail = h.machine;
   } else if (h.kind === "reminder") {
     what = h.language ? `Reminder sent (${LANG_NAMES[h.language] || h.language})` : "Reminder sent";
