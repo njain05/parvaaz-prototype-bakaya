@@ -259,9 +259,17 @@ service interval per machine type.
 - Stage 2: where are installation dates and service intervals entered, and what intervals do these machines need?
   Ask the owner on the factory visit.
 - When to add editing and deleting entries. Probably before the owner uses it with real data.
+- After a payment, Today's "why" line doesn't mention it (Shree Ganesh paid ₹5 lakh and still reads "20 days
+  late … Not reminded yet."). Should a payment in the last few days show, or hide the customer for a while?
+- Reminder messages name the sale as "order #12". Does the owner use order numbers with customers, or should the
+  message name only the machine?
+- The AI path (drafted reminders, Ask, Scan a bill) hasn't been run end to end with a real API key yet.
 
 ## Changelog
 
+- **22 Nov 2026:** first release built (T01–T12). End-to-end check at phone and desktop width, light and dark,
+  without an API key. Old words removed from Ask answers, error messages and the Add sale form. README and
+  `docs/idea.md` rewritten for the follow-up assistant. Three questions from the check added to Open questions.
 - **15 Nov 2026:** work split into tickets T01–T12. Added the approved assumptions and shared contracts. Per-ticket
   branches replace the single `redesign` branch. Partial promises and undo moved from open questions to Assumed.
 - **15 Nov 2026:** first version, from the grilling session.

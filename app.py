@@ -106,7 +106,7 @@ def create_order():
     if total is None or total <= 0:
         return bad("Enter the total amount.")
     if not valid_date(order_date):
-        return bad("Enter a valid order date.")
+        return bad("Enter a valid sale date.")
     if not milestones or any(not valid_date(m.get("due_date")) or (number(m.get("amount")) or 0) <= 0
                              for m in milestones):
         return bad("Each payment instalment needs an amount and a due date.")
@@ -140,7 +140,7 @@ def record_payment(order_id):
     pay_date = body.get("date")
     order = next((o for o in book()["orders"] if o["id"] == order_id), None)
     if not order:
-        return bad("Order not found.", 404)
+        return bad("Sale not found.", 404)
     if amount is None or amount <= 0:
         return bad("Enter the amount received.")
     if amount > order["balance"] + 1:
@@ -262,10 +262,10 @@ def reminder():
     language = body.get("language", "english")
     order = next((o for o in book()["orders"] if o["id"] == body.get("order_id")), None)
     if not order:
-        return bad("Order not found.", 404)
+        return bad("Sale not found.", 404)
     facts = reminder_facts(order)
     if not facts:
-        return bad("This order is fully paid. No reminder needed.")
+        return bad("This sale is fully paid. No reminder needed.")
 
     note = None
     if ai.enabled():
