@@ -1,5 +1,5 @@
 # T12 — End-to-end check and docs
-**Status:** TODO
+**Status:** IN PROGRESS
 **Prereqs:** T05, T08, T10, T11 · **Branch:** t12-end-to-end-and-docs
 
 ## Goal
