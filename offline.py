@@ -99,10 +99,10 @@ def answer(question, book, people=()):
         if len(first) > 2 and first in q:
             if c["outstanding"] <= 0.5:
                 return f"{c['name']} has no pending payments."
-            line = f"{c['name']} owes {inr(c['outstanding'])} in total"
+            line = f"{c['name']} owes {inr(c['outstanding'])} in total."
             if c["overdue"] > 0.5:
-                line += f", of which {inr(c['overdue'])} is overdue (oldest by {c['days_overdue']} days)"
-            return line + "."
+                line += f" {inr(c['overdue'])} of that is late (the oldest by {c['days_overdue']} days)."
+            return line
 
     def has(*words):
         return any(w in q for w in words)
@@ -123,21 +123,22 @@ def answer(question, book, people=()):
     if has("most", "sabse", "zyada", "jyada", "biggest", "top", "highest", "maximum"):
         top = sorted(customers, key=lambda c: -c["outstanding"])[:3]
         return "Customers who owe the most:\n" + _bullets(
-            f"{c['name']}: {inr(c['outstanding'])} ({inr(c['overdue'])} overdue)" for c in top if c["outstanding"] > 0.5
+            f"{c['name']}: {inr(c['outstanding'])}" + (f" ({inr(c['overdue'])} late)" if c["overdue"] > 0.5 else "") for c in top if c["outstanding"] > 0.5
         )
 
     if has("overdue", "late", "pending", "baaki", "baki", "bakaya", "due"):
         late = [c for c in customers if c["overdue"] > 0.5]
         if not late:
-            return "Nothing is overdue right now."
-        return f"{len(late)} customers are overdue, {inr(t['overdue'])} in total:\n" + _bullets(
+            return "Nothing is late right now."
+        who = "1 customer is" if len(late) == 1 else f"{len(late)} customers are"
+        return f"{who} late, {inr(t['overdue'])} in total:\n" + _bullets(
             f"{c['name']}: {inr(c['overdue'])}, {c['days_overdue']} days" for c in late
         )
 
     if has("total", "kitna", "kul", "how much", "outstanding"):
-        return (f"Total outstanding is {inr(t['outstanding'])}. {inr(t['overdue'])} of that is overdue, "
+        return (f"Customers owe you {inr(t['outstanding'])} in total. {inr(t['overdue'])} of that is late, "
                 f"and {inr(t['due_this_week'])} is due in the next 7 days.")
 
     return ("In offline mode I can answer simple questions like: \"Who owes the most?\", "
-            "\"What is overdue?\", \"What's due this week?\", \"Total outstanding?\" or a customer's name. "
+            "\"Who is late?\", \"What's due this week?\", \"How much is owed in total?\" or a customer's name. "
             "Add an API key to ask anything.")

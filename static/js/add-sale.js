@@ -89,7 +89,7 @@ export function openAddSale(prefill = {}) {
         <div id="plan-preview"></div>
       </div>
       <div class="sale-grid">
-        <div class="field"><label for="sale-date">Order date</label><input id="sale-date" class="input" type="date" value="${today}"></div>
+        <div class="field"><label for="sale-date">Sale date</label><input id="sale-date" class="input" type="date" value="${today}"></div>
         <div class="field"><label for="sale-dispatch">Expected dispatch</label><input id="sale-dispatch" class="input" type="date" value="${addDays(today, 45)}"></div>
       </div>
       <div class="field">
